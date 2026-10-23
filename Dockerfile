@@ -47,7 +47,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copiar archivos públicos estáticos
-COPY --from=builder /app/public ./public 2>/dev/null || true
+COPY --from=builder /app/public ./public
 
 # Configurar permisos para caché de Next.js
 RUN mkdir .next && chown nextjs:nodejs .next
