@@ -1,0 +1,13 @@
+.git
+.agents
+.gemini
+node_modules
+.next
+.vscode
+.idea
+*.pem
+temp-stitch-skills
+.env*.local
+.env
+coverage
+*.md

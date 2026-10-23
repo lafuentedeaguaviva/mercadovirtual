@@ -10,6 +10,7 @@ const getSupabaseHostname = (): string => {
 };
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactStrictMode: true,
   images: {
     unoptimized: true,
