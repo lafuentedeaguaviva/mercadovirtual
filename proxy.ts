@@ -43,8 +43,9 @@ export async function proxy(request: NextRequest) {
   // 1. Protección de rutas /admin/*: exige usuario autenticado
   if (pathname.startsWith("/admin")) {
     if (!user) {
-      const redirectUrl = new URL("/login", request.url);
-      redirectUrl.searchParams.set("next", pathname);
+      const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
+      const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+      const redirectUrl = new URL(`/login?next=${encodeURIComponent(pathname)}`, `${proto}://${host}`);
       return NextResponse.redirect(redirectUrl);
     }
   }
@@ -52,8 +53,9 @@ export async function proxy(request: NextRequest) {
   // 2. Protección de rutas /superadmin/*: exige perfil con rol 'superadmin'
   if (pathname.startsWith("/superadmin")) {
     if (!user) {
-      const redirectUrl = new URL("/login", request.url);
-      redirectUrl.searchParams.set("next", pathname);
+      const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
+      const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+      const redirectUrl = new URL(`/login?next=${encodeURIComponent(pathname)}`, `${proto}://${host}`);
       return NextResponse.redirect(redirectUrl);
     }
 
