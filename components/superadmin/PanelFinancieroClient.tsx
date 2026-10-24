@@ -271,6 +271,7 @@ export function PanelFinancieroClient({
         maxItems: Number(maxItems),
         subscriptionPrice: Number(subscriptionPrice),
         niche: businessNiche,
+        subRubro: selectedSubRubro,
       });
 
       if (!res.success) {
@@ -636,7 +637,8 @@ export function PanelFinancieroClient({
                       onClick={() => {
                         setEditPlanBiz(biz);
                         setPlanName(biz.plan_name);
-                        const defaultSub = biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa";
+                        const savedSub = (biz as any).theme?.sub_rubro;
+                        const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa");
                         setSelectedSubRubro(defaultSub);
                         setBusinessNiche(biz.niche as any);
                         setMaxItems(biz.max_items);
@@ -838,7 +840,8 @@ export function PanelFinancieroClient({
                             onClick={() => {
                               setEditPlanBiz(biz);
                               setPlanName(biz.plan_name);
-                              const defaultSub = biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa";
+                              const savedSub = (biz as any).theme?.sub_rubro;
+                              const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa");
                               setSelectedSubRubro(defaultSub);
                               setBusinessNiche(biz.niche as any);
                               setMaxItems(biz.max_items);

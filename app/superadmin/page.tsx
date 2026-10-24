@@ -49,9 +49,26 @@ export default async function SuperAdminFinancesPage() {
       owner_name: b.profiles?.full_name || null,
       owner_email: null,
       created_at: b.created_at,
+      theme: b.theme || null,
     }));
   } else {
-    subscriptions = rawSubscriptions as SubscriptionRow[];
+    // Si viene de la vista rawSubscriptions, traemos los themes de businesses para enriquecerlos
+    const adminSupabase = createAdminClient();
+    const { data: bThemes } = await adminSupabase
+      .from("businesses")
+      .select("id, theme");
+
+    const themeMap = new Map<string, any>();
+    if (bThemes) {
+      bThemes.forEach((b: any) => {
+        themeMap.set(b.id, b.theme);
+      });
+    }
+
+    subscriptions = (rawSubscriptions as any[]).map((s) => ({
+      ...s,
+      theme: themeMap.get(s.business_id) || null,
+    })) as SubscriptionRow[];
   }
 
   // 2. Cálculo de KPIs

@@ -155,6 +155,7 @@ const editPlanSchema = z.object({
   maxItems: z.number().int().min(1, "La capacidad debe ser de al menos 1 producto"),
   subscriptionPrice: z.number().min(0, "La tarifa no puede ser negativa"),
   niche: z.enum(["comercio", "plaza_comidas", "agenda", "inmueble"]).optional(),
+  subRubro: z.string().optional(),
 });
 
 export async function editBusinessPlanAction(input: {
@@ -163,6 +164,7 @@ export async function editBusinessPlanAction(input: {
   maxItems: number;
   subscriptionPrice: number;
   niche?: "comercio" | "plaza_comidas" | "agenda" | "inmueble";
+  subRubro?: string;
 }) {
   await verifySuperAdmin();
 
@@ -185,6 +187,20 @@ export async function editBusinessPlanAction(input: {
   if (validated.data.niche) {
     updateData.niche = validated.data.niche;
     updateData.catalog_mode = validated.data.niche === "inmueble" ? "vitrina" : "carrito";
+  }
+
+  if (validated.data.subRubro) {
+    // Obtenemos el theme actual del negocio para no sobreescribir otros ajustes (color, card_shape, etc.)
+    const { data: currentBiz } = await (adminClient.from("businesses") as any)
+      .select("theme")
+      .eq("id", validated.data.businessId)
+      .maybeSingle();
+
+    const currentTheme = (currentBiz?.theme && typeof currentBiz.theme === "object") ? currentBiz.theme : {};
+    updateData.theme = {
+      ...currentTheme,
+      sub_rubro: validated.data.subRubro,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
