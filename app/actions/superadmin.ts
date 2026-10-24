@@ -223,8 +223,14 @@ export async function updateBusinessNicheAction(input: {
 
   const adminClient = createAdminClient();
 
+  // Al reclasificar el nicho, adaptar automáticamente el catalog_mode si corresponde
+  const newCatalogMode = validated.data.niche === "inmueble" ? "vitrina" : "carrito";
+
   const { error } = await (adminClient.from("businesses") as any)
-    .update({ niche: validated.data.niche })
+    .update({ 
+      niche: validated.data.niche,
+      catalog_mode: newCatalogMode
+    })
     .eq("id", validated.data.businessId);
 
   if (error) {
