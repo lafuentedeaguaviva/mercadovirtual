@@ -10,7 +10,7 @@ interface OnboardingCrearNegocioProps {
 export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProps) {
   const [isPending, startTransition] = useTransition();
   const [businessName, setBusinessName] = useState("");
-  const [niche, setNiche] = useState<"comercio" | "plaza_comidas" | "agenda" | "inmueble" | "otro">("comercio");
+  const [selectedRubro, setSelectedRubro] = useState("comercio_ropa");
   const [customRubro, setCustomRubro] = useState("");
   const [catalogMode, setCatalogMode] = useState<"carrito" | "vitrina">("carrito");
   const [cardShape, setCardShape] = useState<"rounded" | "pill" | "asymmetric" | "sharp">("rounded");
@@ -20,15 +20,26 @@ export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProp
   const [mapsUrl, setMapsUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // Mapeo del rubro específico al nicho principal soportado por la base de datos
+  const getMappedNiche = (rubro: string): "comercio" | "plaza_comidas" | "agenda" | "inmueble" => {
+    if (rubro.startsWith("plaza_")) return "plaza_comidas";
+    if (rubro.startsWith("agenda_")) return "agenda";
+    if (rubro.startsWith("inmueble_")) return "inmueble";
+    return "comercio";
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    const niche = getMappedNiche(selectedRubro);
+    const rubroLabel = selectedRubro === "otro" ? customRubro : selectedRubro;
+
     startTransition(async () => {
       const res = await registrarNegocioParaUsuarioAction({
         businessName,
-        niche: niche === "otro" ? "comercio" : niche,
-        customRubro: niche === "otro" ? customRubro : undefined,
+        niche,
+        customRubro: rubroLabel,
         catalogMode,
         primaryColor,
         cardShape,
@@ -88,32 +99,39 @@ export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProp
               Tipo / Rubro del Negocio *
             </label>
             <select
-              value={niche}
-              onChange={(e) => setNiche(e.target.value as any)}
+              value={selectedRubro}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedRubro(val);
+                // Si elige un nicho de agenda o inmueble, sugerir el modo adecuado automáticamente
+                if (val.startsWith("inmueble_")) {
+                  setCatalogMode("vitrina");
+                }
+              }}
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 min-h-[44px]"
             >
               <optgroup label="Comercio y Tiendas (Catálogo con Carrito)">
-                <option value="comercio">🛍️ Tienda de Ropa / Moda / Calzados</option>
-                <option value="comercio">📱 Tecnología, Celulares & Electrohogar</option>
-                <option value="comercio">💊 Farmacia / Cuidado Personal</option>
-                <option value="comercio">🎨 Artesanías, Regalos & Bazar</option>
-                <option value="comercio">🛒 Abarrotes, Distribuidora o Ferretería</option>
+                <option value="comercio_ropa">🛍️ Tienda de Ropa / Moda / Calzados</option>
+                <option value="comercio_tecnologia">📱 Tecnología, Celulares & Electrohogar</option>
+                <option value="comercio_farmacia">💊 Farmacia / Cuidado Personal</option>
+                <option value="comercio_artesanias">🎨 Artesanías, Regalos & Bazar</option>
+                <option value="comercio_abarrotes">🛒 Abarrotes, Distribuidora o Ferretería</option>
               </optgroup>
               <optgroup label="Gastronomía & Comida">
-                <option value="plaza_comidas">🍔 Restaurante, Cafetería o Hamburguesería</option>
-                <option value="plaza_comidas">🍗 Pollos a la Brasa & Broaster</option>
-                <option value="plaza_comidas">🍲 Comida Típica Orureña (Charquekan)</option>
-                <option value="plaza_comidas">🍦 Heladería, Pastelería o Juguería</option>
+                <option value="plaza_restaurante">🍔 Restaurante, Cafetería o Hamburguesería</option>
+                <option value="plaza_pollos">🍗 Pollos a la Brasa & Broaster</option>
+                <option value="plaza_charquekan">🍲 Comida Típica Orureña (Charquekan)</option>
+                <option value="plaza_heladeria">🍦 Heladería, Pastelería o Juguería</option>
               </optgroup>
               <optgroup label="Servicios y Citas Programadas">
-                <option value="agenda">🦷 Consultorio Dental o Médico</option>
-                <option value="agenda">✂️ Barbería, Spa o Salón de Belleza</option>
-                <option value="agenda">🔧 Taller Mecánico, Electrónico o Servicios</option>
-                <option value="agenda">⚖️ Abogados, Consultores o Contadores</option>
+                <option value="agenda_dental">🦷 Consultorio Dental o Médico</option>
+                <option value="agenda_barberia">✂️ Barbería, Spa o Salón de Belleza</option>
+                <option value="agenda_mecanica">🔧 Taller Mecánico, Electrónico o Servicios</option>
+                <option value="agenda_profesional">⚖️ Abogados, Consultores o Contadores</option>
               </optgroup>
               <optgroup label="Bienes Raíces y Propiedades (Vitrina)">
-                <option value="inmueble">🏢 Inmobiliaria, Alquileres o Lotes</option>
-                <option value="inmueble">🚗 Concesionaria o Venta de Vehículos</option>
+                <option value="inmueble_inmobiliaria">🏢 Inmobiliaria, Alquileres o Lotes</option>
+                <option value="inmueble_vehiculos">🚗 Concesionaria o Venta de Vehículos</option>
               </optgroup>
               <optgroup label="Otro Rubro no listado">
                 <option value="otro">✨ Otro Rubro (Especificar)</option>
@@ -137,7 +155,7 @@ export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProp
         </div>
 
         {/* Si eligió 'Otro Rubro', mostrar campo para que especifique */}
-        {niche === "otro" && (
+        {selectedRubro === "otro" && (
           <div className="p-3.5 bg-sky-50 border border-sky-200 rounded-2xl space-y-1.5">
             <label className="block text-xs font-bold text-sky-900">
               ¿Cuál es tu rubro o actividad específica? *
