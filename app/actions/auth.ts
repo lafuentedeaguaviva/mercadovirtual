@@ -6,18 +6,22 @@ import { createClient } from "@/lib/supabase/server";
 import { sanitizeRedirectUrl } from "@/lib/utils";
 
 async function getRequestSiteUrl(): Promise<string> {
-  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
+  if (
+    process.env.NEXT_PUBLIC_SITE_URL &&
+    !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost") &&
+    !process.env.NEXT_PUBLIC_SITE_URL.includes("0.0.0.0")
+  ) {
     return process.env.NEXT_PUBLIC_SITE_URL;
   }
   try {
     const headersList = await headers();
-    const host = headersList.get("x-forwarded-host") || headersList.get("host");
-    const proto = headersList.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
-    if (host) {
+    let host = headersList.get("x-forwarded-host") || headersList.get("host");
+    if (host && !host.startsWith("0.0.0.0")) {
+      const proto = headersList.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
       return `${proto}://${host}`;
     }
   } catch {
-    // Si no se puede leer headers, fallback a variable o localhost
+    // Si no se puede leer headers, fallback a variable
   }
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
