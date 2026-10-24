@@ -218,27 +218,18 @@ export function GestorBrandingNegocio({
         quality: 0.8,
       });
 
-      setUploadProgress(`Subiendo (${compressedSizeKb} KB)...`);
+      // Subir mediante Server Action segura para evitar violaciones de RLS de storage en cliente
+      const formData = new FormData();
+      formData.append("file", compressedFile);
 
-      const supabase = createClient();
-      const uniquePath = `${businessId}/${type}-${Date.now()}.webp`;
+      const { uploadItemImageAction } = await import("@/app/actions/items");
+      const uploadRes = await uploadItemImageAction(businessId, formData);
 
-      const { error: uploadError } = await supabase.storage
-        .from("items-media")
-        .upload(uniquePath, compressedFile, {
-          contentType: "image/webp",
-          upsert: true,
-        });
-
-      if (uploadError) {
-        throw new Error(uploadError.message || "Error al subir al servidor de almacenamiento.");
+      if (!uploadRes.success || !uploadRes.publicUrl) {
+        throw new Error(uploadRes.message || "Error al subir la imagen.");
       }
 
-      const { data: publicUrlData } = supabase.storage
-        .from("items-media")
-        .getPublicUrl(uniquePath);
-
-      const finalUrl = publicUrlData.publicUrl;
+      const finalUrl = uploadRes.publicUrl;
 
       // Guardar en la base de datos
       const updatePayload = isBanner ? { bannerUrl: finalUrl } : { logoUrl: finalUrl };
