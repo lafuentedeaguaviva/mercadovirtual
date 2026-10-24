@@ -20,9 +20,13 @@ export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProp
   const [mapsUrl, setMapsUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  // Mapeo del rubro específico al nicho principal soportado por la base de datos
+  // Mapeo del rubro específico:
+  // - Un restaurante individual es nicho 'comercio' con modo 'carrito' (su propio menú de comida).
+  // - Una plaza de comidas multipuesto es nicho 'plaza_comidas'.
+  // - Citas / Servicios es 'agenda'.
+  // - Bienes raíces / vehículos es 'inmueble'.
   const getMappedNiche = (rubro: string): "comercio" | "plaza_comidas" | "agenda" | "inmueble" => {
-    if (rubro.startsWith("plaza_")) return "plaza_comidas";
+    if (rubro === "plaza_multipuesto") return "plaza_comidas";
     if (rubro.startsWith("agenda_")) return "agenda";
     if (rubro.startsWith("inmueble_")) return "inmueble";
     return "comercio";
@@ -117,11 +121,14 @@ export function OnboardingCrearNegocio({ userEmail }: OnboardingCrearNegocioProp
                 <option value="comercio_artesanias">🎨 Artesanías, Regalos & Bazar</option>
                 <option value="comercio_abarrotes">🛒 Abarrotes, Distribuidora o Ferretería</option>
               </optgroup>
-              <optgroup label="Gastronomía & Comida">
-                <option value="plaza_restaurante">🍔 Restaurante, Cafetería o Hamburguesería</option>
-                <option value="plaza_pollos">🍗 Pollos a la Brasa & Broaster</option>
-                <option value="plaza_charquekan">🍲 Comida Típica Orureña (Charquekan)</option>
-                <option value="plaza_heladeria">🍦 Heladería, Pastelería o Juguería</option>
+              <optgroup label="Gastronomía & Restaurantes (Menú y Pedidos)">
+                <option value="gastro_restaurante">🍔 Restaurante, Cafetería o Hamburguesería</option>
+                <option value="gastro_pollos">🍗 Pollos a la Brasa & Broaster</option>
+                <option value="gastro_charquekan">🍲 Comida Típica Orureña (Charquekan)</option>
+                <option value="gastro_heladeria">🍦 Heladería, Pastelería o Juguería</option>
+              </optgroup>
+              <optgroup label="Plazas y Patios de Comida (Múltiples Locales)">
+                <option value="plaza_multipuesto">🎪 Plaza de Comidas (Patio con múltiples puestos gastronómicos)</option>
               </optgroup>
               <optgroup label="Servicios y Citas Programadas">
                 <option value="agenda_dental">🦷 Consultorio Dental o Médico</option>
