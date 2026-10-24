@@ -1,8 +1,26 @@
 "use server";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeRedirectUrl } from "@/lib/utils";
+
+async function getRequestSiteUrl(): Promise<string> {
+  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  try {
+    const headersList = await headers();
+    const host = headersList.get("x-forwarded-host") || headersList.get("host");
+    const proto = headersList.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
+    if (host) {
+      return `${proto}://${host}`;
+    }
+  } catch {
+    // Si no se puede leer headers, fallback a variable o localhost
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+}
 
 const loginSchema = z.object({
   email: z.string().email("Ingresa un correo electrónico válido."),
@@ -87,7 +105,7 @@ export async function loginAction(
 
 export async function signInWithGoogleAction(nextUrl: string = "/admin"): Promise<{ url?: string; error?: string }> {
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = await getRequestSiteUrl();
   const sanitizedNext = sanitizeRedirectUrl(nextUrl, "/admin");
   const redirectTo = `${siteUrl}/auth/callback?next=${encodeURIComponent(sanitizedNext)}`;
 
@@ -128,7 +146,7 @@ export async function requestPasswordResetAction(
   }
 
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = await getRequestSiteUrl();
   const redirectUrl = `${siteUrl}/auth/callback?next=/login/reset`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(validated.data.email, {
