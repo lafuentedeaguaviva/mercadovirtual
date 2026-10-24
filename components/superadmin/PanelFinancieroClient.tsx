@@ -58,6 +58,7 @@ export function PanelFinancieroClient({
   const [editPlanBiz, setEditPlanBiz] = useState<SubscriptionRow | null>(null);
   const [planName, setPlanName] = useState("");
   const [selectedSubRubro, setSelectedSubRubro] = useState("comercio_ropa");
+  const [customSubRubro, setCustomSubRubro] = useState("");
   const [businessNiche, setBusinessNiche] = useState<"comercio" | "plaza_comidas" | "agenda" | "inmueble">("comercio");
   const [maxItems, setMaxItems] = useState(50);
   const [subscriptionPrice, setSubscriptionPrice] = useState(0);
@@ -265,13 +266,14 @@ export function PanelFinancieroClient({
 
     setIsSubmittingPlan(true);
     try {
+      const finalSubRubro = selectedSubRubro === "otro" ? (customSubRubro.trim() || "otro") : selectedSubRubro;
       const res = await editBusinessPlanAction({
         businessId: editPlanBiz.business_id,
         planName,
         maxItems: Number(maxItems),
         subscriptionPrice: Number(subscriptionPrice),
         niche: businessNiche,
-        subRubro: selectedSubRubro,
+        subRubro: finalSubRubro,
       });
 
       if (!res.success) {
@@ -638,8 +640,23 @@ export function PanelFinancieroClient({
                         setEditPlanBiz(biz);
                         setPlanName(biz.plan_name);
                         const savedSub = (biz as any).theme?.sub_rubro;
-                        const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa");
-                        setSelectedSubRubro(defaultSub);
+                        const knownRubros = [
+                          "comercio_ropa", "comercio_tecnologia", "comercio_farmacia", "comercio_artesanias", "comercio_abarrotes",
+                          "gastro_restaurante", "gastro_pollos", "gastro_charquekan", "gastro_heladeria",
+                          "plaza_comidas", "plaza_multipuesto",
+                          "agenda_dental", "agenda_barberia", "agenda_mecanica", "agenda_profesional",
+                          "inmueble_inmobiliaria", "inmueble_vehiculos"
+                        ];
+
+                        if (savedSub && !knownRubros.includes(savedSub)) {
+                          setSelectedSubRubro("otro");
+                          setCustomSubRubro(savedSub);
+                        } else {
+                          const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_comidas" : "comercio_ropa");
+                          setSelectedSubRubro(defaultSub);
+                          setCustomSubRubro("");
+                        }
+
                         setBusinessNiche(biz.niche as any);
                         setMaxItems(biz.max_items);
                         setSubscriptionPrice(biz.subscription_price);
@@ -841,8 +858,23 @@ export function PanelFinancieroClient({
                               setEditPlanBiz(biz);
                               setPlanName(biz.plan_name);
                               const savedSub = (biz as any).theme?.sub_rubro;
-                              const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa");
-                              setSelectedSubRubro(defaultSub);
+                              const knownRubros = [
+                                "comercio_ropa", "comercio_tecnologia", "comercio_farmacia", "comercio_artesanias", "comercio_abarrotes",
+                                "gastro_restaurante", "gastro_pollos", "gastro_charquekan", "gastro_heladeria",
+                                "plaza_comidas", "plaza_multipuesto",
+                                "agenda_dental", "agenda_barberia", "agenda_mecanica", "agenda_profesional",
+                                "inmueble_inmobiliaria", "inmueble_vehiculos"
+                              ];
+
+                              if (savedSub && !knownRubros.includes(savedSub)) {
+                                setSelectedSubRubro("otro");
+                                setCustomSubRubro(savedSub);
+                              } else {
+                                const defaultSub = savedSub || (biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_comidas" : "comercio_ropa");
+                                setSelectedSubRubro(defaultSub);
+                                setCustomSubRubro("");
+                              }
+
                               setBusinessNiche(biz.niche as any);
                               setMaxItems(biz.max_items);
                               setSubscriptionPrice(biz.subscription_price);
@@ -1135,11 +1167,47 @@ export function PanelFinancieroClient({
                     <option value="inmueble_inmobiliaria">🏢 Inmobiliaria, Alquileres o Lotes</option>
                     <option value="inmueble_vehiculos">🚗 Concesionaria o Venta de Vehículos</option>
                   </optgroup>
+                  <optgroup label="Otro Rubro Personalizado">
+                    <option value="otro">✨ Otro Rubro (Personalizado / Especificar)</option>
+                  </optgroup>
                 </select>
                 <span className="text-[11px] text-slate-500 mt-1 block">
                   Cambiar el rubro activa o desactiva módulos dinámicamente en el catálogo.
                 </span>
               </div>
+
+              {selectedSubRubro === "otro" && (
+                <div className="p-3.5 bg-indigo-950/50 border border-indigo-500/30 rounded-2xl space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-indigo-300 uppercase mb-1">
+                      Nombre del Rubro Personalizado *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customSubRubro}
+                      onChange={(e) => setCustomSubRubro(e.target.value)}
+                      placeholder="Ej. Veterinaria y Pet Shop, Imprenta Digital, Florería..."
+                      className="w-full px-3.5 py-2 rounded-xl border border-indigo-500/40 bg-slate-900 text-white text-sm focus:ring-2 focus:ring-indigo-400 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                      Comportamiento Base del Catálogo (Nicho Técnico)
+                    </label>
+                    <select
+                      value={businessNiche}
+                      onChange={(e) => setBusinessNiche(e.target.value as any)}
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-semibold focus:ring-2 focus:ring-indigo-400 outline-none"
+                    >
+                      <option value="comercio">🛍️ Comercio (Productos físicos con carrito y pedidos)</option>
+                      <option value="plaza_comidas">🍔 Gastronomía / Restaurante</option>
+                      <option value="agenda">📅 Servicios (Con agenda, citas o cotizaciones)</option>
+                      <option value="inmueble">🏠 Inmuebles o Vehículos (Modo Vitrina sin precios de carrito)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase mb-1">

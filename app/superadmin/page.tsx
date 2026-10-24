@@ -50,24 +50,26 @@ export default async function SuperAdminFinancesPage() {
       owner_email: null,
       created_at: b.created_at,
       theme: b.theme || null,
+      description: b.description || null,
     }));
   } else {
-    // Si viene de la vista rawSubscriptions, traemos los themes de businesses para enriquecerlos
+    // Si viene de la vista rawSubscriptions, traemos los themes y description de businesses para enriquecerlos
     const adminSupabase = createAdminClient();
     const { data: bThemes } = await adminSupabase
       .from("businesses")
-      .select("id, theme");
+      .select("id, theme, description");
 
-    const themeMap = new Map<string, any>();
+    const bizDataMap = new Map<string, any>();
     if (bThemes) {
       bThemes.forEach((b: any) => {
-        themeMap.set(b.id, b.theme);
+        bizDataMap.set(b.id, b);
       });
     }
 
     subscriptions = (rawSubscriptions as any[]).map((s) => ({
       ...s,
-      theme: themeMap.get(s.business_id) || null,
+      theme: bizDataMap.get(s.business_id)?.theme || null,
+      description: bizDataMap.get(s.business_id)?.description || null,
     })) as SubscriptionRow[];
   }
 

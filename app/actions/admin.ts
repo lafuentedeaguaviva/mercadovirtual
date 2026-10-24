@@ -655,6 +655,7 @@ export async function registrarNegocioParaUsuarioAction(input: {
     const themeConfig = {
       primary_color: input.primaryColor || "#0284c7",
       card_shape: input.cardShape || "rounded",
+      sub_rubro: input.customRubro || input.niche,
     };
 
     // Asegurar que el perfil del usuario exista en public.profiles para respetar la foreign key
