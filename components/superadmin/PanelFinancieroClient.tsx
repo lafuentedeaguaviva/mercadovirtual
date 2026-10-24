@@ -57,6 +57,7 @@ export function PanelFinancieroClient({
   // Modal editar plan y rubro
   const [editPlanBiz, setEditPlanBiz] = useState<SubscriptionRow | null>(null);
   const [planName, setPlanName] = useState("");
+  const [selectedSubRubro, setSelectedSubRubro] = useState("comercio_ropa");
   const [businessNiche, setBusinessNiche] = useState<"comercio" | "plaza_comidas" | "agenda" | "inmueble">("comercio");
   const [maxItems, setMaxItems] = useState(50);
   const [subscriptionPrice, setSubscriptionPrice] = useState(0);
@@ -645,6 +646,8 @@ export function PanelFinancieroClient({
                       onClick={() => {
                         setEditPlanBiz(biz);
                         setPlanName(biz.plan_name);
+                        const defaultSub = biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa";
+                        setSelectedSubRubro(defaultSub);
                         setBusinessNiche(biz.niche as any);
                         setMaxItems(biz.max_items);
                         setSubscriptionPrice(biz.subscription_price);
@@ -845,6 +848,8 @@ export function PanelFinancieroClient({
                             onClick={() => {
                               setEditPlanBiz(biz);
                               setPlanName(biz.plan_name);
+                              const defaultSub = biz.niche === "agenda" ? "agenda_dental" : biz.niche === "inmueble" ? "inmueble_inmobiliaria" : biz.niche === "plaza_comidas" ? "plaza_multipuesto" : "comercio_ropa";
+                              setSelectedSubRubro(defaultSub);
                               setBusinessNiche(biz.niche as any);
                               setMaxItems(biz.max_items);
                               setSubscriptionPrice(biz.subscription_price);
@@ -1095,35 +1100,47 @@ export function PanelFinancieroClient({
                   Sector o Rubro Asignado (Nicho)
                 </label>
                 <select
-                  value={businessNiche}
-                  onChange={(e) => setBusinessNiche(e.target.value as any)}
+                  value={selectedSubRubro}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedSubRubro(val);
+                    if (val.startsWith("agenda")) {
+                      setBusinessNiche("agenda");
+                    } else if (val === "plaza_comidas") {
+                      setBusinessNiche("plaza_comidas");
+                    } else if (val.startsWith("inmueble")) {
+                      setBusinessNiche("inmueble");
+                    } else {
+                      setBusinessNiche("comercio");
+                    }
+                  }}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-sm font-semibold focus:ring-2 focus:ring-indigo-500/50 outline-none"
                 >
                   <optgroup label="Comercio y Tiendas (Catálogo con Carrito)">
-                    <option value="comercio">🛍️ Tienda de Ropa / Moda / Calzados</option>
-                    <option value="comercio">📱 Tecnología, Celulares & Electrohogar</option>
-                    <option value="comercio">💊 Farmacia / Cuidado Personal</option>
-                    <option value="comercio">🎨 Artesanías, Regalos & Bazar</option>
-                    <option value="comercio">🛒 Abarrotes, Distribuidora o Ferretería</option>
+                    <option value="comercio_ropa">🛍️ Tienda de Ropa / Moda / Calzados</option>
+                    <option value="comercio_tecnologia">📱 Tecnología, Celulares & Electrohogar</option>
+                    <option value="comercio_farmacia">💊 Farmacia / Cuidado Personal</option>
+                    <option value="comercio_artesanias">🎨 Artesanías, Regalos & Bazar</option>
+                    <option value="comercio_abarrotes">🛒 Abarrotes, Distribuidora o Ferretería</option>
                   </optgroup>
                   <optgroup label="Gastronomía & Restaurantes (Menú y Pedidos)">
-                    <option value="comercio">🍔 Restaurante, Cafetería o Hamburguesería</option>
-                    <option value="comercio">🍗 Pollos a la Brasa & Broaster</option>
-                    <option value="comercio">🍲 Comida Típica Orureña (Charquekan)</option>
-                    <option value="comercio">🍦 Heladería, Pastelería o Juguería</option>
+                    <option value="gastro_restaurante">🍔 Restaurante, Cafetería o Hamburguesería</option>
+                    <option value="gastro_pollos">🍗 Pollos a la Brasa & Broaster</option>
+                    <option value="gastro_charquekan">🍲 Comida Típica Orureña (Charquekan)</option>
+                    <option value="gastro_heladeria">🍦 Heladería, Pastelería o Juguería</option>
                   </optgroup>
                   <optgroup label="Plazas y Patios de Comida (Múltiples Locales)">
                     <option value="plaza_comidas">🎪 Plaza de Comidas (Patio con múltiples puestos gastronómicos)</option>
                   </optgroup>
                   <optgroup label="Servicios y Citas Programadas">
-                    <option value="agenda">🦷 Consultorio Dental o Médico</option>
-                    <option value="agenda">✂️ Barbería, Spa o Salón de Belleza</option>
-                    <option value="agenda">🔧 Taller Mecánico, Electrónico o Servicios</option>
-                    <option value="agenda">⚖️ Abogados, Consultores o Contadores</option>
+                    <option value="agenda_dental">🦷 Consultorio Dental o Médico</option>
+                    <option value="agenda_barberia">✂️ Barbería, Spa o Salón de Belleza</option>
+                    <option value="agenda_mecanica">🔧 Taller Mecánico, Electrónico o Servicios</option>
+                    <option value="agenda_profesional">⚖️ Abogados, Consultores o Contadores</option>
                   </optgroup>
                   <optgroup label="Bienes Raíces y Propiedades (Vitrina)">
-                    <option value="inmueble">🏢 Inmobiliaria, Alquileres o Lotes</option>
-                    <option value="inmueble">🚗 Concesionaria o Venta de Vehículos</option>
+                    <option value="inmueble_inmobiliaria">🏢 Inmobiliaria, Alquileres o Lotes</option>
+                    <option value="inmueble_vehiculos">🚗 Concesionaria o Venta de Vehículos</option>
                   </optgroup>
                 </select>
                 <span className="text-[11px] text-slate-500 mt-1 block">
