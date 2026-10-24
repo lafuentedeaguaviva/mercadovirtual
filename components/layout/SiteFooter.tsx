@@ -24,7 +24,9 @@ export function SiteFooter() {
           <p className="font-semibold text-slate-300">MercadoVirtual Oruro — Comercio Local Phygital</p>
           <p className="text-[11px] text-slate-500 mt-0.5">Diseñado para negocios, artesanos, plazas gastronómicas y consultorios de Oruro, Bolivia.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-4">
+          <a href="/privacidad" className="hover:text-sky-400 transition-colors">Privacidad</a>
+          <a href="/terminos" className="hover:text-sky-400 transition-colors">Términos</a>
           <a href="/login" className="hover:text-sky-400 transition-colors">Panel Dueños</a>
           <a href="/sitemap.xml" className="hover:text-sky-400 transition-colors">Sitemap</a>
           <a href="/robots.txt" className="hover:text-sky-400 transition-colors">Robots</a>
