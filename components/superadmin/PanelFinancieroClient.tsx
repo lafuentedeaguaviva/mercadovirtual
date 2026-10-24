@@ -1099,10 +1099,32 @@ export function PanelFinancieroClient({
                   onChange={(e) => setBusinessNiche(e.target.value as any)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-sm font-semibold focus:ring-2 focus:ring-indigo-500/50 outline-none"
                 >
-                  <option value="comercio">🛍️ Comercio General & Tiendas</option>
-                  <option value="plaza_comidas">🍔 Gastronomía & Plaza de Comidas</option>
-                  <option value="agenda">📅 Servicios, Citas & Consultorios</option>
-                  <option value="inmueble">🏠 Inmuebles & Bienes Raíces</option>
+                  <optgroup label="Comercio y Tiendas (Catálogo con Carrito)">
+                    <option value="comercio">🛍️ Tienda de Ropa / Moda / Calzados</option>
+                    <option value="comercio">📱 Tecnología, Celulares & Electrohogar</option>
+                    <option value="comercio">💊 Farmacia / Cuidado Personal</option>
+                    <option value="comercio">🎨 Artesanías, Regalos & Bazar</option>
+                    <option value="comercio">🛒 Abarrotes, Distribuidora o Ferretería</option>
+                  </optgroup>
+                  <optgroup label="Gastronomía & Restaurantes (Menú y Pedidos)">
+                    <option value="comercio">🍔 Restaurante, Cafetería o Hamburguesería</option>
+                    <option value="comercio">🍗 Pollos a la Brasa & Broaster</option>
+                    <option value="comercio">🍲 Comida Típica Orureña (Charquekan)</option>
+                    <option value="comercio">🍦 Heladería, Pastelería o Juguería</option>
+                  </optgroup>
+                  <optgroup label="Plazas y Patios de Comida (Múltiples Locales)">
+                    <option value="plaza_comidas">🎪 Plaza de Comidas (Patio con múltiples puestos gastronómicos)</option>
+                  </optgroup>
+                  <optgroup label="Servicios y Citas Programadas">
+                    <option value="agenda">🦷 Consultorio Dental o Médico</option>
+                    <option value="agenda">✂️ Barbería, Spa o Salón de Belleza</option>
+                    <option value="agenda">🔧 Taller Mecánico, Electrónico o Servicios</option>
+                    <option value="agenda">⚖️ Abogados, Consultores o Contadores</option>
+                  </optgroup>
+                  <optgroup label="Bienes Raíces y Propiedades (Vitrina)">
+                    <option value="inmueble">🏢 Inmobiliaria, Alquileres o Lotes</option>
+                    <option value="inmueble">🚗 Concesionaria o Venta de Vehículos</option>
+                  </optgroup>
                 </select>
                 <span className="text-[11px] text-slate-500 mt-1 block">
                   Cambiar el rubro activa o desactiva módulos dinámicamente en el catálogo.
