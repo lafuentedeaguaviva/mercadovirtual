@@ -147,13 +147,14 @@ export async function toggleBusinessSuspensionAction(input: {
 }
 
 // ---------------------------------------------------------------------------
-// 3. EDITAR PLAN (plan_name, max_items, subscription_price)
+// 3. EDITAR PLAN (plan_name, max_items, subscription_price, niche)
 // ---------------------------------------------------------------------------
 const editPlanSchema = z.object({
   businessId: z.string().uuid("ID de negocio inválido"),
   planName: z.string().min(2, "El nombre del plan debe tener al menos 2 caracteres").max(50),
   maxItems: z.number().int().min(1, "La capacidad debe ser de al menos 1 producto"),
   subscriptionPrice: z.number().min(0, "La tarifa no puede ser negativa"),
+  niche: z.enum(["comercio", "plaza_comidas", "agenda", "inmueble"]).optional(),
 });
 
 export async function editBusinessPlanAction(input: {
@@ -161,6 +162,7 @@ export async function editBusinessPlanAction(input: {
   planName: string;
   maxItems: number;
   subscriptionPrice: number;
+  niche?: "comercio" | "plaza_comidas" | "agenda" | "inmueble";
 }) {
   await verifySuperAdmin();
 
@@ -174,13 +176,20 @@ export async function editBusinessPlanAction(input: {
 
   const adminClient = createAdminClient();
 
+  const updateData: Record<string, any> = {
+    plan_name: validated.data.planName,
+    max_items: validated.data.maxItems,
+    subscription_price: validated.data.subscriptionPrice,
+  };
+
+  if (validated.data.niche) {
+    updateData.niche = validated.data.niche;
+    updateData.catalog_mode = validated.data.niche === "inmueble" ? "vitrina" : "carrito";
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (adminClient.from("businesses") as any)
-    .update({
-      plan_name: validated.data.planName,
-      max_items: validated.data.maxItems,
-      subscription_price: validated.data.subscriptionPrice,
-    })
+    .update(updateData)
     .eq("id", validated.data.businessId);
 
   if (error) {

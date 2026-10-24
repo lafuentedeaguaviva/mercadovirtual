@@ -270,6 +270,7 @@ export function PanelFinancieroClient({
         planName,
         maxItems: Number(maxItems),
         subscriptionPrice: Number(subscriptionPrice),
+        niche: businessNiche,
       });
 
       if (!res.success) {
@@ -278,18 +279,7 @@ export function PanelFinancieroClient({
         return;
       }
 
-      // Si cambió de rubro, actualizar también el rubro (niche)
-      if (businessNiche && businessNiche !== editPlanBiz.niche) {
-        const nicheRes = await updateBusinessNicheAction({
-          businessId: editPlanBiz.business_id,
-          niche: businessNiche,
-        });
-        if (!nicheRes.success) {
-          showToast(`Plan actualizado, pero error en rubro: ${nicheRes.error}`, "error");
-        }
-      }
-
-      showToast(`Plan y configuración de "${editPlanBiz.name}" actualizados.`);
+      showToast(`Plan y rubro de "${editPlanBiz.name}" actualizados.`);
       setEditPlanBiz(null);
       window.location.reload();
     } catch {
